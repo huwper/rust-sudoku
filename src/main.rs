@@ -1,3 +1,8 @@
+mod dlx;
+mod quad_link;
+
+
+
 fn main() {
-    println!("Hello, world!");
+    dlx::DlxSolver::new(1000, 5, &[]);
 }

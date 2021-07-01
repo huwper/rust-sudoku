@@ -1,0 +1,1 @@
+https://garethrees.org/2007/06/10/zendoku-generation/#section-4
