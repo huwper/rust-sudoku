@@ -22,17 +22,12 @@ pub fn new_list_entry<T>(val: T) -> EntryRef<T> {
     }))
 }
 
-pub fn link_left_right<T>(left: &mut Option<EntryRef<T>>, right: &mut Option<EntryRef<T>>) -> Result<(), ()> {
-    if let (Some(l), Some(r)) = (left, right) {
-        (*l).borrow_mut().right = Some(r.clone());
-        (*r).borrow_mut().left = Some(l.clone());
-        Ok(())
-    } else {
-        Err(())
-    }
+pub fn link_left_right<T>(left: &EntryRef<T>, right: &EntryRef<T>) {
+    (*left).borrow_mut().right = Some(right.clone());
+    (*right).borrow_mut().left = Some(left.clone());
 }
 
-pub fn link_up_down<T>(up: &mut Option<EntryRef<T>>, down: &mut Option<EntryRef<T>>) -> Result<(), ()> {
+pub fn _link_up_down<T>(up: &mut Option<EntryRef<T>>, down: &mut Option<EntryRef<T>>) -> Result<(), ()> {
     if let (Some(u), Some(d)) = (up, down) {
         (*u).borrow_mut().right = Some(d.clone());
         (*d).borrow_mut().left = Some(u.clone());
@@ -50,11 +45,11 @@ mod tests{
 
     #[test]
     fn test_circular_list() {
-        let mut a = Some(new_list_entry(5));
-        let mut b = Some(new_list_entry(6));
+        let a = new_list_entry(5);
+        let b = new_list_entry(6);
 
-        link_left_right(&mut a, &mut b).unwrap();
+        link_left_right(&a, &b);
 
-        assert_eq!(6, (*(*a.unwrap()).borrow().right.as_ref().unwrap()).borrow().item);
+        assert_eq!(6, (*(*a).borrow().right.as_ref().unwrap()).borrow().item);
     }
 }
