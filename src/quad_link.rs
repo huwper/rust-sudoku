@@ -2,8 +2,6 @@ use std::{cell::RefCell, rc::Rc};
 
 pub type EntryRef<T> = Rc<RefCell<CircularListEntry<T>>>;
 
-
-
 pub struct CircularListEntry<T> {
     pub item: T,
     pub left: Option<EntryRef<T>>,
@@ -18,7 +16,7 @@ pub fn new_list_entry<T>(val: T) -> EntryRef<T> {
         left: None,
         right: None,
         up: None,
-        down: None
+        down: None,
     }))
 }
 
@@ -27,7 +25,10 @@ pub fn link_left_right<T>(left: &EntryRef<T>, right: &EntryRef<T>) {
     (*right).borrow_mut().left = Some(left.clone());
 }
 
-pub fn _link_up_down<T>(up: &mut Option<EntryRef<T>>, down: &mut Option<EntryRef<T>>) -> Result<(), ()> {
+pub fn _link_up_down<T>(
+    up: &mut Option<EntryRef<T>>,
+    down: &mut Option<EntryRef<T>>,
+) -> Result<(), ()> {
     if let (Some(u), Some(d)) = (up, down) {
         (*u).borrow_mut().right = Some(d.clone());
         (*d).borrow_mut().left = Some(u.clone());
@@ -37,9 +38,8 @@ pub fn _link_up_down<T>(up: &mut Option<EntryRef<T>>, down: &mut Option<EntryRef
     }
 }
 
-
 #[cfg(test)]
-mod tests{
+mod tests {
 
     use super::*;
 
