@@ -2,5 +2,5 @@ mod dlx;
 mod quad_link;
 
 fn main() {
-    dlx::DlxSolver::new(1000, 5, &[]);
+    // dlx::DlxSolver::new(1000, 5, &[]);
 }
