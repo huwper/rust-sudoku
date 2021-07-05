@@ -25,6 +25,16 @@ trait QuadLinkList: Sized {
     type Item;
     fn left(&self) -> Option<Self>;
     fn set_left(&self, new: Option<Self>);
+
+    fn right(&self) -> Option<Self>;
+    fn set_right(&self, new: Option<Self>);
+
+    fn up(&self) -> Option<Self>;
+    fn set_up(&self, new: Option<Self>);
+
+    fn down(&self) -> Option<Self>;
+    fn set_down(&self, new: Option<Self>);
+
     fn item(&self) -> Self::Item;
     fn set_item(&self, item: Self::Item);
 }
@@ -54,6 +64,14 @@ where
 {
     type Item = T;
 
+    fn item(&self) -> Self::Item {
+        (*self.this_entry).borrow().item
+    }
+
+    fn set_item(&self, item: Self::Item) {
+        (*self.this_entry).borrow_mut().item = item;
+    }
+
     fn left(&self) -> Option<Self> {
         match &(*self.this_entry).borrow().left {
             Some(left) => Some(left.clone()),
@@ -70,12 +88,52 @@ where
         }
     }
 
-    fn item(&self) -> Self::Item {
-        (*self.this_entry).borrow().item
+    fn right(&self) -> Option<Self> {
+        match &(*self.this_entry).borrow().right {
+            Some(right) => Some(right.clone()),
+            None => None,
+        }
     }
 
-    fn set_item(&self, item: Self::Item) {
-        (*self.this_entry).borrow_mut().item = item;
+    fn set_right(&self, new: Option<Self>) {
+        if let Some(uw_new) = new {
+            (*self.this_entry).borrow_mut().right = Some(uw_new.clone());
+            (*uw_new.this_entry).borrow_mut().left = Some(self.clone());
+        } else {
+            (*self.this_entry).borrow_mut().right = None;
+        }
+    }
+
+    fn up(&self) -> Option<Self> {
+        match &(*self.this_entry).borrow().up {
+            Some(up) => Some(up.clone()),
+            None => None,
+        }
+    }
+
+    fn set_up(&self, new: Option<Self>) {
+        if let Some(uw_new) = new {
+            (*self.this_entry).borrow_mut().up = Some(uw_new.clone());
+            (*uw_new.this_entry).borrow_mut().down = Some(self.clone());
+        } else {
+            (*self.this_entry).borrow_mut().up = None;
+        }
+    }
+
+    fn down(&self) -> Option<Self> {
+        match &(*self.this_entry).borrow().down {
+            Some(down) => Some(down.clone()),
+            None => None,
+        }
+    }
+
+    fn set_down(&self, new: Option<Self>) {
+        if let Some(uw_new) = new {
+            (*self.this_entry).borrow_mut().down = Some(uw_new.clone());
+            (*uw_new.this_entry).borrow_mut().up = Some(self.clone());
+        } else {
+            (*self.this_entry).borrow_mut().down = None;
+        }
     }
 }
 
@@ -114,17 +172,31 @@ mod tests {
 
     #[test]
     fn test_circular_list() {
-        let a = QuadLinks::new(5);
-        let b = QuadLinks::new(10);
+        let a = QuadLinks::new('a');
+        let b = QuadLinks::new('b');
+        let c = QuadLinks::new('c');
+        let d = QuadLinks::new('d');
 
-        a.set_left(Some(b.clone()));
-        assert_eq!(b.item(), a.left().unwrap().item());
+        a.set_up(Some(b.clone()));
+        b.set_right(Some(c.clone()));
+        c.set_down(Some(d.clone()));
+        d.set_left(Some(a.clone()));
 
-        b.set_item(1000);
-        assert_eq!(1000, b.item());
-        assert_eq!(b.item(), a.left().unwrap().item());
+        assert_eq!('d', a.right().unwrap().item());
 
-        a.left().unwrap().set_item(1);
-        assert_eq!(1, b.item());
+        assert_eq!('c', a.right().unwrap().up().unwrap().item());
+        assert_eq!('b', a.right().unwrap().up().unwrap().left().unwrap().item());
+        assert_eq!(
+            'a',
+            a.right()
+                .unwrap()
+                .up()
+                .unwrap()
+                .left()
+                .unwrap()
+                .down()
+                .unwrap()
+                .item()
+        );
     }
 }
