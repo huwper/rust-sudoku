@@ -182,6 +182,14 @@ mod tests {
         c.set_down(Some(d.clone()));
         d.set_left(Some(a.clone()));
 
+        //   |     |
+        // - b <-> c -
+        //   ^     ^
+        //   |     |
+        //   v     v
+        // - a <-> d -
+        //   |    |
+
         assert_eq!('d', a.right().unwrap().item());
 
         assert_eq!('c', a.right().unwrap().up().unwrap().item());
