@@ -37,6 +37,41 @@ pub trait QuadLinkList: Sized + Clone {
 
     fn item(&self) -> Self::Item;
     fn set_item(&self, item: Self::Item);
+
+    fn right_iter(&self) -> QuadLinkListIter<Self>;
+}
+
+enum IterDirection {
+    Left,
+    Right,
+    Up,
+    Down
+}
+
+pub struct QuadLinkListIter<T>
+where T: QuadLinkList
+{
+    direction: IterDirection,
+    current: Option<T>,
+}
+
+impl<T> Iterator for QuadLinkListIter<T>
+where T: QuadLinkList
+{
+    type Item = T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let ret = self.current.clone();
+        if let Some(current) = (&self.current).as_ref() {
+            self.current = match self.direction {
+                IterDirection::Left => current.left(),
+                IterDirection::Right => current.right(),
+                IterDirection::Up => current.up(),
+                IterDirection::Down => current.down(),
+            };
+        }
+        ret
+    }
 }
 
 trait QuadLinkBorrowedItem {}
@@ -129,6 +164,13 @@ where
             (*self.this_entry).borrow_mut().down = Some(uw_new.clone());
         } else {
             (*self.this_entry).borrow_mut().down = None;
+        }
+    }
+
+    fn right_iter(&self) -> QuadLinkListIter<Self> {
+        QuadLinkListIter {
+            direction: IterDirection::Right,
+            current: Some(self.clone())
         }
     }
 }

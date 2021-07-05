@@ -1,7 +1,7 @@
 // /// dancing links for algorithm X ;)
 use super::quad_link::{self, QuadLinkList};
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 struct Head {
     pub num_entries: u32,
 }
@@ -12,7 +12,7 @@ impl Head {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 enum ListEntry {
     Head(Head),
     Node(bool),
@@ -60,5 +60,6 @@ mod tests {
         }
 
         assert_eq!(10, num_headers);
+        println!("{:?}", algo.list.right_iter().nth(5).unwrap().item());
     }
 }
