@@ -1,33 +1,64 @@
 // /// dancing links for algorithm X ;)
-// use super::quad_link;
+use super::quad_link::{self, QuadLinkList};
 
-// struct Head {
-//     pub num_entries: u32,
-// }
+#[derive(Clone, Copy)]
+struct Head {
+    pub num_entries: u32,
+}
 
-// enum ListEntry {
-//     Head(Head),
-//     Node(bool),
-// }
+impl Head {
+    fn new() -> Self {
+        Head { num_entries: 0 }
+    }
+}
 
-// pub struct DlxSolver {
-//     list: Option<quad_link::EntryRef<ListEntry>>,
-// }
+#[derive(Clone, Copy)]
+enum ListEntry {
+    Head(Head),
+    Node(bool),
+}
 
-// impl DlxSolver {
-//     pub fn new(n_cols: u32, _n_rows: u32, _col_row_entries: &[(u32, u32)]) -> Self {
-//         let temp = quad_link::new_list_entry(ListEntry::Head(Head { num_entries: 0 }));
-//         let mut idx = temp.clone();
-//         //let mut next;
-//         for _ in 0..n_cols {
-//             let next = quad_link::new_list_entry(ListEntry::Head(Head { num_entries: 0 }));
-//             {
-//                 quad_link::link_left_right(&idx, &next);
-//             }
-//             idx = next.clone();
-//         }
-//         let ret = Self { list: Some(temp) };
+pub struct DlxSolver {
+    list: quad_link::QuadLinks<ListEntry>,
+}
 
-//         ret
-//     }
-// }
+impl DlxSolver {
+    pub fn new(n_cols: u32, _n_rows: u32, _col_row_entries: &[(u32, u32)]) -> Self {
+        let temp = quad_link::QuadLinks::new(ListEntry::Head(Head::new()));
+        let mut idx = temp.clone();
+        //let mut next;
+        for _ in 1..n_cols {
+            let next = quad_link::QuadLinks::new(ListEntry::Head(Head::new()));
+            {
+                quad_link::link_left_right(&idx, &next);
+            }
+            idx = next.clone();
+        }
+        let ret = Self { list: temp };
+
+        ret
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_new() {
+        let algo = DlxSolver::new(10, 10, &[]);
+        let mut list = algo.list.clone();
+        let mut num_headers = 0;
+
+        loop {
+            num_headers += 1;
+            match list.right() {
+                Some(r) => list = r.clone(),
+                None => break,
+            }
+        }
+
+        assert_eq!(10, num_headers);
+    }
+}

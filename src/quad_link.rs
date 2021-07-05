@@ -21,7 +21,7 @@ where
     this_entry: EntryRef<T>,
 }
 
-trait QuadLinkList: Sized {
+pub trait QuadLinkList: Sized + Clone {
     type Item;
     fn left(&self) -> Option<Self>;
     fn set_left(&self, new: Option<Self>);
@@ -82,7 +82,6 @@ where
     fn set_left(&self, new: Option<Self>) {
         if let Some(uw_new) = new {
             (*self.this_entry).borrow_mut().left = Some(uw_new.clone());
-            (*uw_new.this_entry).borrow_mut().right = Some(self.clone());
         } else {
             (*self.this_entry).borrow_mut().left = None;
         }
@@ -98,7 +97,6 @@ where
     fn set_right(&self, new: Option<Self>) {
         if let Some(uw_new) = new {
             (*self.this_entry).borrow_mut().right = Some(uw_new.clone());
-            (*uw_new.this_entry).borrow_mut().left = Some(self.clone());
         } else {
             (*self.this_entry).borrow_mut().right = None;
         }
@@ -114,7 +112,6 @@ where
     fn set_up(&self, new: Option<Self>) {
         if let Some(uw_new) = new {
             (*self.this_entry).borrow_mut().up = Some(uw_new.clone());
-            (*uw_new.this_entry).borrow_mut().down = Some(self.clone());
         } else {
             (*self.this_entry).borrow_mut().up = None;
         }
@@ -130,40 +127,27 @@ where
     fn set_down(&self, new: Option<Self>) {
         if let Some(uw_new) = new {
             (*self.this_entry).borrow_mut().down = Some(uw_new.clone());
-            (*uw_new.this_entry).borrow_mut().up = Some(self.clone());
         } else {
             (*self.this_entry).borrow_mut().down = None;
         }
     }
 }
 
-// pub fn new_list_entry<T>(val: T) -> EntryRef<T> {
-//     Rc::new(RefCell::new(CircularListEntry {
-//         item: val,
-//         left: None,
-//         right: None,
-//         up: None,
-//         down: None,
-//     }))
-// }
+pub fn link_up_down<T>(up: &T, down: &T)
+where
+    T: QuadLinkList,
+{
+    up.set_down(Some(down.clone()));
+    down.set_up(Some(up.clone()));
+}
 
-// pub fn link_left_right<T>(left: &EntryRef<T>, right: &EntryRef<T>) {
-//     (*left).borrow_mut().right = Some(right.clone());
-//     (*right).borrow_mut().left = Some(left.clone());
-// }
-
-// pub fn _link_up_down<T>(
-//     up: &mut Option<EntryRef<T>>,
-//     down: &mut Option<EntryRef<T>>,
-// ) -> Result<(), ()> {
-//     if let (Some(u), Some(d)) = (up, down) {
-//         (*u).borrow_mut().right = Some(d.clone());
-//         (*d).borrow_mut().left = Some(u.clone());
-//         Ok(())
-//     } else {
-//         Err(())
-//     }
-// }
+pub fn link_left_right<T>(left: &T, right: &T)
+where
+    T: QuadLinkList,
+{
+    left.set_right(Some(right.clone()));
+    right.set_left(Some(left.clone()));
+}
 
 #[cfg(test)]
 mod tests {
@@ -177,10 +161,10 @@ mod tests {
         let c = QuadLinks::new('c');
         let d = QuadLinks::new('d');
 
-        a.set_up(Some(b.clone()));
-        b.set_right(Some(c.clone()));
-        c.set_down(Some(d.clone()));
-        d.set_left(Some(a.clone()));
+        link_up_down(&b, &a);
+        link_left_right(&b, &c);
+        link_up_down(&c, &d);
+        link_left_right(&a, &d);
 
         //   |     |
         // - b <-> c -
@@ -188,7 +172,7 @@ mod tests {
         //   |     |
         //   v     v
         // - a <-> d -
-        //   |    |
+        //   |     |
 
         assert_eq!('d', a.right().unwrap().item());
 
