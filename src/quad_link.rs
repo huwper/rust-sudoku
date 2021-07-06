@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, marker::PhantomData, rc::Rc};
 
 type EntryRef<T> = Rc<RefCell<CircularListEntry<T>>>;
 
@@ -74,13 +74,21 @@ where T: QuadLinkList
     }
 }
 
-trait QuadLinkBorrowedItem {}
 
-impl<T> QuadLinks<T>
-where
-    T: Sized + Copy,
+pub struct QuadLinksFactory<T>
+where T: Sized + Copy
 {
-    pub fn new(item: T) -> Self {
+    ph: PhantomData<T>,
+}
+
+impl<T> QuadLinksFactory<T> 
+where T: Sized + Copy
+{
+    pub fn new() -> Self {
+        Self { ph: PhantomData }
+    }
+
+    pub fn create(&self, item: T) -> QuadLinks<T> {
         QuadLinks {
             this_entry: Rc::new(RefCell::new(CircularListEntry {
                 item: item,
@@ -198,10 +206,11 @@ mod tests {
 
     #[test]
     fn test_circular_list() {
-        let a = QuadLinks::new('a');
-        let b = QuadLinks::new('b');
-        let c = QuadLinks::new('c');
-        let d = QuadLinks::new('d');
+        let f = QuadLinksFactory::new();
+        let a = f.create('a');
+        let b = f.create('b');
+        let c = f.create('c');
+        let d = f.create('d');
 
         link_up_down(&b, &a);
         link_left_right(&b, &c);
