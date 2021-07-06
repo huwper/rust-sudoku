@@ -1,6 +1,7 @@
 mod dlx;
 mod quad_link;
+mod latin_square;
 
 fn main() {
-    dlx::DlxSolver::new(1000, 5, &[]);
+    latin_square::demo();
 }
