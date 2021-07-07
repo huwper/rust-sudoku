@@ -45,18 +45,20 @@ enum IterDirection {
     Left,
     Right,
     Up,
-    Down
+    Down,
 }
 
 pub struct QuadLinkListIter<T>
-where T: QuadLinkList
+where
+    T: QuadLinkList,
 {
     direction: IterDirection,
     current: Option<T>,
 }
 
 impl<T> Iterator for QuadLinkListIter<T>
-where T: QuadLinkList
+where
+    T: QuadLinkList,
 {
     type Item = T;
 
@@ -74,15 +76,16 @@ where T: QuadLinkList
     }
 }
 
-
 pub struct QuadLinksFactory<T>
-where T: Sized + Copy
+where
+    T: Sized + Copy,
 {
     ph: PhantomData<T>,
 }
 
-impl<T> QuadLinksFactory<T> 
-where T: Sized + Copy
+impl<T> QuadLinksFactory<T>
+where
+    T: Sized + Copy,
 {
     pub fn new() -> Self {
         Self { ph: PhantomData }
@@ -178,7 +181,7 @@ where
     fn right_iter(&self) -> QuadLinkListIter<Self> {
         QuadLinkListIter {
             direction: IterDirection::Right,
-            current: Some(self.clone())
+            current: Some(self.clone()),
         }
     }
 }

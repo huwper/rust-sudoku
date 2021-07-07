@@ -27,7 +27,7 @@ impl DlxSolver {
     pub fn new(n_cols: u32, _n_rows: u32, _col_row_entries: &[(u32, u32)]) -> Self {
         let mut ret = Self {
             list_factory: QuadLinksFactory::new(),
-            list: None
+            list: None,
         };
         let temp = ret.list_factory.create(ListEntry::Head(Head::new()));
         let mut idx = temp.clone();
@@ -65,6 +65,15 @@ mod tests {
         }
 
         assert_eq!(10, num_headers);
-        println!("{:?}", (&algo.list).as_ref().unwrap().right_iter().nth(5).unwrap().item());
+        println!(
+            "{:?}",
+            (&algo.list)
+                .as_ref()
+                .unwrap()
+                .right_iter()
+                .nth(5)
+                .unwrap()
+                .item()
+        );
     }
 }
